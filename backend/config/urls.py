@@ -53,7 +53,7 @@ urlpatterns += [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("social/", include("social.urls")),
-    path("v1/social/", include("social.v1_urls")),
+    path("v1/social", include("social.v1_urls")),
     path("v1/health/", include("health_check.urls")),
     path("v1/", include("api.urls")),
     path("v1/", include("roles.urls")),
@@ -67,5 +67,5 @@ urlpatterns += [
     path("v1/projects/<int:project_id>/", include("labels.urls")),
     path("v1/projects/<int:project_id>/", include("label_types.urls")),
     path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
-    re_path("", TemplateView.as_view(template_name="index.html")),
+    path("", TemplateView.as_view(template_name="index.html")),
 ]

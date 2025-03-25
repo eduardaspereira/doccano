@@ -11,14 +11,13 @@ Any setting that is configured via an environment variable may
 also be set in a `.env` file in the project base directory.
 """
 from os import path
-from pathlib import Path
 
 import dj_database_url
 from environs import Env, EnvError
 from furl import furl
 
 # Build paths inside the project like this: path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+BASE_DIR = path.dirname(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
 env = Env()
 env.read_env(path.join(BASE_DIR, ".env"), recurse=False)
@@ -96,10 +95,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            path.join(BASE_DIR, 'frontend', 'dist'),
-            path.join(BASE_DIR, 'frontend', 'templates'),
-        ],
+        "DIRS": [path.join(BASE_DIR, "frontend/dist")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -117,11 +113,8 @@ TEMPLATES = [
 STATIC_URL = "/static/"
 STATIC_ROOT = path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    path.join(BASE_DIR, "frontend", "dist"),
-    path.join(BASE_DIR, "frontend", "static"),
-    path.join(BASE_DIR, "backend", "static"),
+    path.join(BASE_DIR, "frontend/static"),
 ]
-
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
@@ -164,7 +157,8 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
-        "rest_framework.permissions.IsAuthenticated",
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
@@ -203,9 +197,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": path.join(BASE_DIR, "db.sqlite3"),
-        "OPTIONS": {
-            "sslmode": "disable",  # Disable SSL
-        },
     }
 }
 # Change 'default' database configuration with $DATABASE_URL.
@@ -213,7 +204,7 @@ DATABASES["default"].update(
     dj_database_url.config(
         env="DATABASE_URL",
         conn_max_age=env.int("DATABASE_CONN_MAX_AGE", 500),
-        ssl_require=False,
+        #ssl_require="sslmode" not in furl(env("DATABASE_URL", "")).args,
     )
 )
 
@@ -243,8 +234,16 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", [])
 ALLOWED_HOSTS = ["*"]
 
 if DEBUG:
-    CORS_ORIGIN_ALLOW_ALL = True
-    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000", "http://0.0.0.0:3000", "http://localhost:3000"]
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://0.0.0.0:3000",
+        "http://localhost:3000",
+    ]
     CSRF_TRUSTED_ORIGINS += env.list("CSRF_TRUSTED_ORIGINS", [])
 
 # Batch size for importing data

@@ -37,10 +37,10 @@
     <template #[`item.isSuperuser`]="{ item }">
     <v-tooltip bottom>
       <template #activator="{ on, attrs }">
-        <v-icon v-bind="attrs" v-on="on" color="orange" v-if="item.isSuperuser">
+        <v-icon v-if="item.isSuperuser" v-bind="attrs" color="orange" v-on="on">
           {{ mdiCrown }}
         </v-icon>
-        <v-icon v-bind="attrs" v-on="on" color="blue" v-else>
+        <v-icon v-else v-bind="attrs" color="blue" v-on="on">
           {{ mdiAccount }}
         </v-icon>
       </template>
